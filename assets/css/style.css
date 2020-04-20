@@ -10,3 +10,14 @@
 .card-header {
   font-weight: bold;
 }
+
+.cards {
+  /* margin: 5px; */
+  /* padding: 15px; */
+}
+
+.uv-inline {
+  float: left;
+  font-size: 30px;
+  /* font-weight: bold; */
+}
