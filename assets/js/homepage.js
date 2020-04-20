@@ -172,11 +172,14 @@ var getCurrentWeather = function(city) {
 
 
   var weatherHistory = localStorage.getItem("weather-history")
+
+  if(weatherHistory!=null){
   var existingHistory = weatherHistory.split(",")
   console.log("Existing History: " + existingHistory)
   for (var k=0; k<existingHistory.length;k++){
     addHistoryButton(existingHistory[k])
   }
+}
 
 $("#basic-addon2").on("click", function(event) {
   event.preventDefault();  
@@ -207,6 +210,26 @@ $("#basic-addon2").on("click", function(event) {
 // var fiveDayUrl = "https://api.openweathermap.org/data/2.5/forecast?q=York&appid=277bb2e5372c4e82877ab645a3d8b117"
 
 
+$("button").on("click", function(event) {
+  console.log(this.id)
+  city = this.id
+  event.preventDefault();  
+  var display=document.querySelector("#visibility").removeAttribute("hidden")
+  // var check2 = document.querySelector("#basic-addon2")
+
+  // console.log(check2)
+  // city = $("#form-input").val().trim();
+  fiveDayUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiId
+  var cityId = "#"+city
+  console.log(cityId)
+  
 
 
-
+  historyList.push(city)
+  localStorage.setItem("weather-history", historyList)
+  addHistoryButton(city)
+  // var check = $("<button>").attr("id").val();
+  // console.log(check)  
+  getCurrentWeather(city)
+  getFiveDay(fiveDayUrl)
+})
