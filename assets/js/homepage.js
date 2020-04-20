@@ -1,3 +1,4 @@
+// declare global variables
 var lat
 var lon
 var uvUrl
@@ -12,11 +13,12 @@ var historyList = []
 var descriptionImage
 var gifOpenWeather
 
-
+// function to add list item to city history
 var addHistoryButton = function (city) {
-var elCreate = document.createElement("button")
+var elCreate = document.createElement("li")
 var elExist = document.getElementById("history-list-id")
 var appended = elExist.appendChild(elCreate)
+elCreate.setAttribute("class", "city-class")
 elCreate.setAttribute("id", city)
 appended.textContent = city
 
@@ -24,50 +26,38 @@ appended.textContent = city
 
 
 
-
+// function to get five day forecast and populate five day forecast cards
 var getFiveDay = function (fiveDayUrl) {
   fetch(fiveDayUrl)
     .then(function(response) {
       if(response.ok){
         response.json().then(function(data) {
-          console.log("Five Day Forecast is:");
-          console.log(data);
-          console.log("five day 24 hr temp is:");
-          console.log(data.list[7].main.temp);
-          console.log(data.list[7].weather[0].description);
-          descriptionImage = data.list[7].weather[0].description;
           for (var i=0; i<5; i++){
+            // update indices to call from five day forecast json array
             var j = i+1;
             var hour = 8*j-2+1;
+            // create gif for card from five day api
             var gifIcon = data.list[hour].weather[0].icon;
             gifOpenWeather = "http://openweathermap.org/img/wn/" + gifIcon +"@2x.png";
             console.log("gif open weather is :" + gifOpenWeather);
-            // getGif(gifOpenWeather);
-            // getDescriptionImage(descriptionImage)
             document.getElementById("image-day"+j).src=gifOpenWeather
-            // elDate.textContent = gif;
             var dateDayJ = "dateDay" + j
+            // extract date for each day
             dateDayJ = data.list[hour].dt_txt;
             dateDayJ = moment(dateDayJ).format('(MM/DD/YYYY)')
             var elDate = document.getElementById("day" + j + "-id-date");
             elDate.textContent=dateDayJ;
+            // extract temperature and convert from kelvin to farenheit
             var elTemp = document.getElementById("day" + j + "-temp")
             var tempK = data.list[hour].main.temp
             var tempF = (tempK - 273.15)*9/5 + 32
             tempF = tempF.toPrecision(3)
             elTemp.textContent = "Temp: " + tempF + " °F"
+            // extract humidity
             var elHum = document.getElementById("day" + j + "-hum")
             elHum.textContent = "Humidity: " + data.list[hour].main.humidity + "%"
           }
           
-          // console.log("date day 1 is : " + dateDay1)
-          // console.log("gif is :" + gif);
-          var timeString = data.list[7].dt_txt;
-          var timeString2 = timeString.split(" ");
-          var timeStringIndex = timeString2[1];
-          var hour = timeStringIndex.charAt(0) + timeStringIndex.charAt(1);          
-          hour = parseInt(hour, 10);
-          console.log("hour is :" + hour);
         });
       } else {
         alert("Error: " + response.statusText);
@@ -75,19 +65,18 @@ var getFiveDay = function (fiveDayUrl) {
     }) 
 }
 
+// function to get UV index
 var getUvIndex = function (uvUrl) {
-
   fetch(uvUrl)
     .then(function(response) {
       if(response.ok){
         response.json().then(function(data) {
-          console.log("UV Index is:");
-          console.log(data);
-          console.log(data.value);
           var elCurUv2 = document.getElementById("uv-text");
+          // remove classes from uv index
           elCurUv2.classList.remove("btn-success")
           elCurUv2.classList.remove("btn-warning")
           elCurUv2.classList.remove("btn-danger")
+          // apply classes to uv index depending on level
           if (data.value < 3) {
             addClassUv = "btn-success"
           }
@@ -98,14 +87,11 @@ var getUvIndex = function (uvUrl) {
             addClassUv = "btn-danger"
           }
           var elCurUv = document.getElementById("current-uvindex");
-          elCurUv.textContent = "UV Index: " ;
-                    
+          elCurUv.textContent = "UV Index: " ;                    
           elCurUv2.classList.add(addClassUv)
           console.log(data.value);
           console.log(elCurUv2);
-          elCurUv2.textContent = data.value;
-         
-         
+          elCurUv2.textContent = data.value;        
         });
 
       } else {
@@ -114,11 +100,8 @@ var getUvIndex = function (uvUrl) {
     })
 }
 
+//  functionn to get current weather
 var getCurrentWeather = function(city) {
-
-  // format the github api url
-  // var apiUrl = "api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=json";
-  // var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=New York&appid=277bb2e5372c4e82877ab645a3d8b117"
   var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiId 
   // make a request to the url
   fetch(apiUrl)
@@ -128,12 +111,7 @@ var getCurrentWeather = function(city) {
         response.json().then(function(data) {
           console.log("This is current weather:")
           var currentTime = moment().hour()
-          console.log(currentTime)
-          console.log(data)
-          console.log(data.main.temp)
           var elCurCity = document.getElementById("current-city")
-          
-          // document.querySelector("#current-temp").value = data.main.temp
           var tempF = (data.main.temp - 273.15)*9/5 + 32
           tempF = tempF.toPrecision(3)
           var elCurTemp = document.getElementById("current-temp")
@@ -141,24 +119,18 @@ var getCurrentWeather = function(city) {
           var elCurHum = document.getElementById("current-humidity")
           elCurHum.textContent = "Humidity: " + data.main.humidity + "%"
           var elCurSpeed = document.getElementById("current-windspeed")
+          // convert speed to mph
           var speedMph = 2.237*data.wind.speed
           speedMph = speedMph.toPrecision(3)
           elCurSpeed.textContent = "Wind Speed: " +  speedMph + "MPH"
-          console.log(data.coord.lon)
-          console.log(data.coord.lat)
-          console.log(data.wind.speed)
-          console.log(data.main.humidity)
-          console.log("time zone is :  " + data.timezone)
           var deltaTime = (data.timezone-3*60*60)/60
           var curTim = moment().utcOffset(deltaTime).format("MM-DD-YYYY");
           var curTim2 = moment().utcOffset(deltaTime).format("LLLL");
-          console.log("cur time 2 is : " + curTim2)
           elCurCity.textContent = data.name + " (" + curTim + ")";
           lat = data.coord.lat
           lon = data.coord.lon
           uvUrl = "http://api.openweathermap.org/data/2.5/uvi?appid=" + apiId  +  "&lat=" + lat + "&lon=" + lon
           getUvIndex(uvUrl)
-          // displayRepos(data, user);
         });
       } else {
         alert("Error: " + response.statusText);
@@ -172,7 +144,7 @@ var getCurrentWeather = function(city) {
 
 
   var weatherHistory = localStorage.getItem("weather-history")
-
+  // populate city history
   if(weatherHistory!=null){
   var existingHistory = weatherHistory.split(",")
   console.log("Existing History: " + existingHistory)
@@ -181,55 +153,32 @@ var getCurrentWeather = function(city) {
   }
 }
 
+// event listener for button click for search
 $("#basic-addon2").on("click", function(event) {
   event.preventDefault();  
   var display=document.querySelector("#visibility").removeAttribute("hidden")
-  // var check2 = document.querySelector("#basic-addon2")
-
-  // console.log(check2)
   city = $("#form-input").val().trim();
   fiveDayUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiId
   var cityId = "#"+city
-  console.log(cityId)
-  
-
-
   historyList.push(city)
   localStorage.setItem("weather-history", historyList)
   addHistoryButton(city)
-  // var check = $("<button>").attr("id").val();
-  // console.log(check)  
   getCurrentWeather(city)
   getFiveDay(fiveDayUrl)
 })
 
-// $("button").click(function() {
-//   alert(this.id)
-// })
-
-// var fiveDayUrl = "https://api.openweathermap.org/data/2.5/forecast?q=York&appid=277bb2e5372c4e82877ab645a3d8b117"
-
-
-$("button").on("click", function(event) {
+// event listener for item list history 
+$(".city-class").on("click", function(event) {
   console.log(this.id)
   city = this.id
   event.preventDefault();  
   var display=document.querySelector("#visibility").removeAttribute("hidden")
-  // var check2 = document.querySelector("#basic-addon2")
-
-  // console.log(check2)
-  // city = $("#form-input").val().trim();
   fiveDayUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiId
   var cityId = "#"+city
   console.log(cityId)
-  
-
-
   historyList.push(city)
   localStorage.setItem("weather-history", historyList)
-  addHistoryButton(city)
-  // var check = $("<button>").attr("id").val();
-  // console.log(check)  
+  addHistoryButton(city)  
   getCurrentWeather(city)
   getFiveDay(fiveDayUrl)
 })
